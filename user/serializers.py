@@ -51,16 +51,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 
-class UserSaveSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            'fio',
-            "phone",
-            "uuid",
 
-        ]
 
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(many=False,required=False,read_only=True)
@@ -68,24 +59,17 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
-                "uuid",
-                "login",
-                "fio",
-                "phone",
-            'email',
             'role',
-            'is_driving',
-            'is_staff',
-            'avatar',
-            'work_time',
-            'notifications',
-
-
+            'client',
+            'login',
+            'email',
+            'phone',
+            'comment',
+            'is_manager',
         ]
 
         extra_kwargs = {
             'password': {'required': False},
-
         }
 
 
@@ -99,9 +83,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = tuple(User.REQUIRED_FIELDS) + (
-            'added_by',
-            'fio',
-            'phone',
             'login',
             'password',
         )
