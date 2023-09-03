@@ -9,7 +9,6 @@ from django.db import IntegrityError, transaction
 
 from rest_framework import exceptions, serializers, status, generics
 from .models import *
-from user.serializers import UserSaveSerializer
 
 from django.contrib.auth.tokens import default_token_generator
 
