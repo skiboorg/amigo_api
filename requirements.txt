@@ -13,6 +13,8 @@ selenium
 selenium-requests
 
 psycopg2
+django-resized
+drf-yasg
 
 
 

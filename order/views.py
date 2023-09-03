@@ -3,9 +3,34 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 
-from .models import *
-from rest_framework import generics, viewsets, parsers
+
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from cart.models import Cart
+from cart.views import calcCart
+from .models import *
+
+class CreateOrder(APIView):
+    def post(self,request):
+        data = request.data
+        session_id = data['session_id']
+        cart = Cart.objects.get(sessionID=session_id)
+        order = Order.objects.create(**data)
+        order.totalPrice = cart.totalPrice
+        order.save()
+        for cart_product in cart.products.all():
+            OrderItem.objects.create(
+                order=order,
+                product=cart_product.product,
+                productPrice=cart_product.productPrice,
+                amount=cart_product.amount,
+                totalPrice=cart_product.totalPrice,
+
+            )
+            cart_product.delete()
+            calcCart(cart)
+
+        return Response(status=200)
 
 def get_from_table(table):
     rows = table.find_elements(By.TAG_NAME,'tr')
@@ -53,7 +78,7 @@ def getOrders(request):
     login_button.click()
     time.sleep(2)
 
-    for page_id in range(12216, 18000):
+    for page_id in range(30000, 35000):
         try:
             driver.get(f'https://admin.amigovetpet.ru/order/view?id={page_id}')
             time.sleep(2)

@@ -12,7 +12,7 @@ class Status(models.Model):
         return f'{self.name}'
 
 class Client(models.Model):
-    manager = models.ForeignKey('user.User', on_delete=models.SET_NULL, blank=True, null=True)
+    manager = models.ForeignKey('user.User', on_delete=models.SET_NULL, blank=True, null=True,related_name='manager')
     category = models.ManyToManyField(Category, null=True)
     status = models.ForeignKey(Status, on_delete=models.SET_NULL, blank=True, null=True)
     city = models.ForeignKey('data.City', on_delete=models.SET_NULL, blank=True, null=True)

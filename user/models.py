@@ -70,9 +70,8 @@ class RolePage(models.Model):
 class User(AbstractUser):
     username = None
     role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
+    client = models.ForeignKey('client.Client', on_delete=models.SET_NULL, blank=True, null=True,related_name='client')
 
-    login = models.CharField('Логин', max_length=255, blank=True, null=True, unique=True)
-    login = models.CharField('Логин', max_length=255, blank=True, null=True, unique=True)
     login = models.CharField('Логин', max_length=255, blank=True, null=True, unique=True)
     email = models.CharField('Почта', max_length=255, blank=True, null=True)
     phone = models.CharField('Телефон', max_length=255, blank=True, null=True)
