@@ -51,11 +51,10 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 
-
-
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(many=False,required=False,read_only=True)
     class Meta:
+        ref_name = "User1"
         model = User
         fields = [
             "id",
