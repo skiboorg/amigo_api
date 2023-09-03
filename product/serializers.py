@@ -23,14 +23,22 @@ class ProductPriceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductTypeSerializer(serializers.ModelSerializer):
+
+
+
+class ProductSubCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProductType
+        model = ProductSubCategory
         fields = '__all__'
 
+class ProductCategorySerializer(serializers.ModelSerializer):
+    sub_categories = ProductSubCategorySerializer(many=True, required=False, read_only=True)
+    class Meta:
+        model = ProductCategory
+        fields = '__all__'
 class ProductSerializer(serializers.ModelSerializer):
     gallery = ProductGalleryImageSerializer(many=True, required=False, read_only=True)
-    productType = ProductTypeSerializer(many=True, required=False, read_only=True)
+    productType = ProductSubCategorySerializer(many=True, required=False, read_only=True)
     prices = ProductPriceSerializer(many=True, required=False, read_only=True)
     class Meta:
         model = Product
@@ -40,11 +48,12 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductShortSerializer(serializers.ModelSerializer):
     prices = ProductPriceSerializer(many=True, required=False, read_only=True)
     image = serializers.SerializerMethodField()
-    productType = ProductTypeSerializer(many=True, required=False, read_only=True)
+    productType = ProductSubCategorySerializer(many=True, required=False, read_only=True)
     class Meta:
         model = Product
         fields = [
             'id',
+            'vendorCode',
             'name',
             'slug',
             'shortDescription',

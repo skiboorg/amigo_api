@@ -6,6 +6,10 @@ from .models import *
 class ProductPriceInline(NestedStackedInline):
     model = ProductPrice
     extra = 0
+
+class ProductSubCategoryInline(NestedStackedInline):
+    model = ProductSubCategory
+    extra = 0
 class ProductGalleryImageInline(NestedStackedInline):
     model = ProductGalleryImage
     extra = 0
@@ -22,6 +26,9 @@ class ProductGalleryImageInline(NestedStackedInline):
     image_preview.short_description = 'Текущее изображение'
 
 
+class ProductCategoryAdmin(NestedModelAdmin):
+    model = ProductCategory
+    inlines = [ProductSubCategoryInline]
 class ProductAdmin(NestedModelAdmin):
     model = Product
     list_display = ('image_preview','name',)
@@ -36,7 +43,7 @@ class ProductAdmin(NestedModelAdmin):
         'name',
         'slug',
         'shortDescription',
-        'productType',
+        'subCategory',
         'description',
         'feedingRate',
         'delivery',
@@ -52,4 +59,4 @@ class ProductAdmin(NestedModelAdmin):
 
 
 admin.site.register(Product, ProductAdmin)
-admin.site.register(ProductType)
+admin.site.register(ProductCategory,ProductCategoryAdmin)

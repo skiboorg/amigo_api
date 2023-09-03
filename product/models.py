@@ -6,16 +6,47 @@ from django.core.files import File
 
 
 
-class ProductType(models.Model):
+class ProductCategory(models.Model):
     name = models.CharField('Название', max_length=255, blank=False, null=False)
+    image = ResizedImageField(size=[420, 420], quality=95, force_format='WEBP', upload_to='product/gallery',
+                              blank=False, null=True)
+    slug = models.CharField('ЧПУ', max_length=255,
+                            help_text='Если не заполнено, создается на основе поля Назавание',
+                            blank=True, null=True)
+    def __str__(self):
+        return f'{self.name}'
+
+    def save(self, *args, **kwargs):
+
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        #ordering = ('order_num',)
+        verbose_name = 'Категория товара'
+        verbose_name_plural = 'Категории товаров'
+
+class ProductSubCategory(models.Model):
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, blank=False, null=True, related_name='sub_categories')
+    name = models.CharField('Название', max_length=255, blank=False, null=False)
+    slug = models.CharField('ЧПУ', max_length=255,
+                            help_text='Если не заполнено, создается на основе поля Назавание',
+                            blank=True, null=True)
 
     def __str__(self):
         return f'{self.name}'
 
     class Meta:
         #ordering = ('order_num',)
-        verbose_name = 'Тип товара'
-        verbose_name_plural = 'Типы товара'
+        verbose_name = 'Подкатегория товара'
+        verbose_name_plural = 'Подкатегория товаров'
+
+    def save(self, *args, **kwargs):
+
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -29,7 +60,7 @@ class Product(models.Model):
                                  help_text='Если не заполнено, создается на основе поля Назавание',
                                  blank=True, null=True)
 
-    productType = models.ManyToManyField(ProductType, blank=True)
+    subCategory = models.ManyToManyField(ProductSubCategory, blank=True)
     shortDescription = models.TextField('Короткое описание', blank=True, null=True)
     description = RichTextUploadingField('Состав', blank=True, null=True)
     feedingRate = RichTextUploadingField('Норма кормления  ', blank=True, null=True)

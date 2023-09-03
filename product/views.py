@@ -15,13 +15,18 @@ from django.conf import settings
 
 
 
-class GetTypes(generics.ListAPIView):
-    serializer_class = ProductTypeSerializer
-    queryset = ProductType.objects.all()
+class GetCategories(generics.ListAPIView):
+    serializer_class = ProductCategorySerializer
+    queryset = ProductCategory.objects.all()
 
 class GetProducts(generics.ListAPIView):
     serializer_class = ProductShortSerializer
     queryset = Product.objects.filter(isActive=True)
+
+class GetProductsBySubcategory(generics.ListAPIView):
+    serializer_class = ProductShortSerializer
+    def get_queryset(self):
+        return Product.objects.filter(subCategory__slug=self.kwargs['slug'])
 
 class GetProduct(generics.RetrieveAPIView):
     serializer_class = ProductSerializer

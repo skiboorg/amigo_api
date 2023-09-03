@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'colorfield',
+    'nested_inline',
 
     'django_filters',
 
