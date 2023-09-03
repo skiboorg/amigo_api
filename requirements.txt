@@ -7,6 +7,7 @@ djoser
 django-cleanup
 django-ckeditor
 django-filter
+django-nested-inline
 pytils
 
 selenium
