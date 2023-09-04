@@ -36,6 +36,8 @@ class ProductAdmin(NestedModelAdmin):
     inlines = [ProductGalleryImageInline, ProductPriceInline]
     fields = [
         'image_preview',
+        'category',
+        'subCategory',
         'isActive',
         'isPromotionActive',
         'promotionText',
@@ -43,7 +45,7 @@ class ProductAdmin(NestedModelAdmin):
         'name',
         'slug',
         'shortDescription',
-        'subCategory',
+
         'description',
         'feedingRate',
         'delivery',

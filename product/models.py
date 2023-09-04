@@ -60,6 +60,7 @@ class Product(models.Model):
                                  help_text='Если не заполнено, создается на основе поля Назавание',
                                  blank=True, null=True)
 
+    category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, blank=True, null=True)
     subCategory = models.ManyToManyField(ProductSubCategory, blank=True)
     shortDescription = models.TextField('Короткое описание', blank=True, null=True)
     description = RichTextUploadingField('Состав', blank=True, null=True)

@@ -28,6 +28,11 @@ class GetProductsBySubcategory(generics.ListAPIView):
     def get_queryset(self):
         return Product.objects.filter(subCategory__slug=self.kwargs['slug'])
 
+class GetCatalog(generics.ListAPIView):
+    serializer_class = ProductShortSerializer
+    def get_queryset(self):
+        return Product.objects.filter(category__slug=self.kwargs['cat_slug'],subCategory__slug=self.kwargs['subcat_slug'])
+
 class GetProduct(generics.RetrieveAPIView):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
