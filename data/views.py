@@ -9,6 +9,31 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 from .models import City
+from .serializers import *
+from rest_framework import generics
+
+
+class GetBlogItem(generics.RetrieveAPIView):
+    serializer_class = BlogItemSerializer
+    queryset = BlogItem.objects.filter()
+    lookup_field = 'slug'
+class GetNews(generics.ListAPIView):
+    serializer_class = BlogItemSerializer
+
+    def get_queryset(self):
+        item_type = self.request.query_params.get('item_type')
+        index = self.request.query_params.get('index', None)
+
+        if item_type == 'news':
+            qs = BlogItem.objects.filter(is_news_item=True)
+        else:
+            qs = BlogItem.objects.filter(is_news_item=False)
+
+        if index:
+            qs = qs[:3]
+
+        return qs
+
 
 def get_from_table(table):
     rows = table.find_elements(By.TAG_NAME,'tr')
