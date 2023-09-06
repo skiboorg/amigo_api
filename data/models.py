@@ -19,7 +19,7 @@ class City(models.Model):
 
 class BlogCategory(models.Model):
     name = models.CharField('Название', max_length=255, blank=False, null=True)
-    slug = models.CharField(max_length=255, blank=False, null=True)
+    slug = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         # ordering = ('order_num',)
