@@ -26,6 +26,9 @@ class BlogCategory(models.Model):
         verbose_name = 'Категория блога'
         verbose_name_plural = 'Категории блога'
 
+    def __str__(self):
+        return f'{self.name}'
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -48,6 +51,9 @@ class BlogItem(models.Model):
         ordering = ('-id',)
         verbose_name = 'Новость'
         verbose_name_plural = 'Новости'
+
+    def __str__(self):
+        return f'{self.name}'
 
     def save(self, *args, **kwargs):
 
