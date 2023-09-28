@@ -50,6 +50,7 @@ class StatusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Status
+        ref_name = 'client_status'
         fields = '__all__'
 
 class ClientSerializer(serializers.ModelSerializer):
