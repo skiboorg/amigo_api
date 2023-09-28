@@ -7,7 +7,6 @@ from .models import *
 class UserAdmin(BaseUserAdmin):
     list_display = (
         'login',
-        'phone',
         'date_joined',
 
     )
@@ -24,7 +23,7 @@ class UserAdmin(BaseUserAdmin):
                        'password1',
                        'password2',
                        ), }),)
-    search_fields = ('id','login', 'phone',)
+    search_fields = ('id','login',)
 
     fieldsets = (
         (None, {'fields': ('login', 'password')}),
@@ -33,12 +32,11 @@ class UserAdmin(BaseUserAdmin):
              'role',
              "first_name",
              "last_name",
-
+            'fio',
              "is_manager",
              'email',
-                "phone",
                 "comment",
-                "birthday",
+
 
 
          )}

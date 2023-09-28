@@ -21,7 +21,10 @@ class UpdateCart(APIView):
         data = request.data
         session_id = data['session_id']
         # cart = Cart.objects.get(sessionID=session_id)
-        cart, _ = Cart.objects.get_or_create(sessionID=session_id)
+        if request.user.is_authenticated:
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+        else:
+            cart, _ = Cart.objects.get_or_create(sessionID=session_id)
         if data['action'] == 'add_amount':
             cartItem, created = CartItem.objects.get_or_create(
                 cart=cart,
@@ -67,10 +70,11 @@ class GetCart(generics.RetrieveAPIView):
 
     def get_object(self):
         session_id = self.kwargs.get('session_id', None)
-        if session_id:
-            cart,_ = Cart.objects.get_or_create(sessionID=session_id)
-            print(cart.products)
-            return cart
+        if self.request.user.is_authenticated:
+            cart, _ = Cart.objects.get_or_create(user=self.request.user)
+        else:
+            cart, _ = Cart.objects.get_or_create(sessionID=session_id)
+        return cart
 
 
 

@@ -8,17 +8,24 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
-from .models import City
+from .models import *
 from .serializers import *
 from rest_framework import generics
-
 
 class GetBlogItem(generics.RetrieveAPIView):
     serializer_class = BlogItemSerializer
     queryset = BlogItem.objects.filter()
     lookup_field = 'slug'
+
+class GetTopBanners(generics.ListAPIView):
+    serializer_class = TopBannerSerializer
+    queryset = TopBanner.objects.all()
+
+class GetBanners(generics.ListAPIView):
+    serializer_class = BannerSerializer
+    queryset = Banner.objects.all()
 class GetNews(generics.ListAPIView):
-    serializer_class = BlogItemSerializer
+    serializer_class = BannerSerializer
 
     def get_queryset(self):
         item_type = self.request.query_params.get('item_type')

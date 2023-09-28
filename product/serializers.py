@@ -17,6 +17,8 @@ class ProductGalleryImageSerializer(serializers.ModelSerializer):
         model = ProductGalleryImage
         fields = '__all__'
 
+
+
 class ProductPriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductPrice
@@ -26,19 +28,19 @@ class ProductPriceSerializer(serializers.ModelSerializer):
 
 
 
-class ProductSubCategorySerializer(serializers.ModelSerializer):
+class FilterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProductSubCategory
+        model = Filter
         fields = '__all__'
 
 class ProductCategorySerializer(serializers.ModelSerializer):
-    sub_categories = ProductSubCategorySerializer(many=True, required=False, read_only=True)
+    filters = FilterSerializer(many=True, required=False, read_only=True)
     class Meta:
         model = ProductCategory
         fields = '__all__'
 class ProductSerializer(serializers.ModelSerializer):
     gallery = ProductGalleryImageSerializer(many=True, required=False, read_only=True)
-    productType = ProductSubCategorySerializer(many=True, required=False, read_only=True)
+    filters = FilterSerializer(many=True, required=False, read_only=True)
     prices = ProductPriceSerializer(many=True, required=False, read_only=True)
     class Meta:
         model = Product
@@ -48,7 +50,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductShortSerializer(serializers.ModelSerializer):
     prices = ProductPriceSerializer(many=True, required=False, read_only=True)
     image = serializers.SerializerMethodField()
-    productType = ProductSubCategorySerializer(many=True, required=False, read_only=True)
+    filters = FilterSerializer(many=True, required=False, read_only=True)
     class Meta:
         model = Product
         fields = [
@@ -59,7 +61,10 @@ class ProductShortSerializer(serializers.ModelSerializer):
             'shortDescription',
             'image',
             'prices',
-            'productType'
+            'filters',
+            'isNew',
+            'isDiscount',
+            'discount',
         ]
 
     def get_image(self, obj):
@@ -93,9 +98,17 @@ class ProductCartSerializer(serializers.ModelSerializer):
 
 
 
+class ProductForTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
 
 
+class ProductPriceForTableSerializer(serializers.ModelSerializer):
+    product = ProductForTableSerializer(many=False, required=False, read_only=True)
 
-
+    class Meta:
+        model = ProductPrice
+        fields = '__all__'
 
 

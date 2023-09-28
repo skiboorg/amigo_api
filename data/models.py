@@ -60,3 +60,33 @@ class BlogItem(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
+class TopBanner(models.Model):
+    image = ResizedImageField(size=[740, 475], quality=95, force_format='WEBP', upload_to='blog',
+                              blank=False, null=True)
+    orange_title = models.CharField('текст рыжий,', max_length=255, blank=True, null=True)
+    black_title = models.CharField('текст черный,', max_length=255, blank=True, null=True)
+    text = models.TextField('текст', blank=True, null=True)
+    url = models.CharField('ссылка,', max_length=255, blank=True, null=True)
+    button_text = models.CharField('текст на кнопке,', max_length=255, blank=True, null=True)
+
+    class Meta:
+        # ordering = ('-id',)
+        verbose_name = 'Баннер на главной'
+        verbose_name_plural = 'Баннер на главной'
+
+    def __str__(self):
+        return f'Баннер {self.id}'
+
+
+class Banner(models.Model):
+    image = ResizedImageField(size=[740, 475], quality=95, force_format='WEBP', upload_to='blog',blank=False, null=True)
+    url = models.CharField('ссылка,', max_length=255, blank=True, null=True)
+
+    class Meta:
+        # ordering = ('-id',)
+        verbose_name = 'Баннер'
+        verbose_name_plural = 'Баннер'
+
+    def __str__(self):
+        return f'Баннер {self.id}'

@@ -5,6 +5,7 @@ from django.db import models
 
 class Cart(models.Model):
     sessionID = models.CharField(max_length=255, blank=True, null=True)
+    user = models.ForeignKey('user.User',on_delete=models.CASCADE, blank=True, null=True)
     totalPrice = models.DecimalField(decimal_places=2, max_digits=8, blank=True, null=True)
 
 class CartItem(models.Model):

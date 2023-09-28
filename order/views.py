@@ -1,4 +1,7 @@
 import time
+
+from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -9,13 +12,63 @@ from rest_framework.views import APIView
 from cart.models import Cart
 from cart.views import calcCart
 from .models import *
+from user.models import User
+from client.models import Client
+from product.services import create_random_string
+from .serializers import *
+
+class OrderPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
+
+class OrderViewSet(viewsets.ModelViewSet):
+    pagination_class = OrderPagination
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
+
+
+class UpdateOrderItem(APIView):
+    def post(self, request):
+        data = request.data
+        print(data)
+        return Response(status=200)
 
 class CreateOrder(APIView):
+
     def post(self,request):
         data = request.data
         session_id = data['session_id']
-        cart = Cart.objects.get(sessionID=session_id)
-        order = Order.objects.create(**data)
+        new_user = data.get('new_user', None)
+        user = None
+        if request.user.is_authenticated:
+            cart = Cart.objects.get(user=request.user)
+        else:
+            cart = Cart.objects.get(sessionID=session_id)
+
+        if new_user:
+            email = data['email']
+            fio = data['fio']
+            client = Client.objects.create(
+                fio=fio
+            )
+            password = create_random_string(digits=False, num=8)
+            print(password)
+            user = User.objects.create_user(
+                client=client,
+                login=email,
+                email=email,
+                password=password
+            )
+
+        if new_user:
+            order = Order.objects.create(
+                user=user,
+            )
+        else:
+            order = Order.objects.create(
+                session_id=session_id,
+            )
         order.totalPrice = cart.totalPrice
         order.save()
         for cart_product in cart.products.all():
@@ -32,6 +85,20 @@ class CreateOrder(APIView):
 
         return Response(status=200)
 
+class DeliveryViewSet(viewsets.ModelViewSet):
+    queryset = Delivery.objects.all()
+    serializer_class = DeliverySerializer
+class DeliveryCompanyViewSet(viewsets.ModelViewSet):
+    queryset = DeliveryCompany.objects.all()
+    serializer_class = DeliveryCompanySerializer
+
+class PaymentTypeViewSet(viewsets.ModelViewSet):
+    queryset = PaymentType.objects.all()
+    serializer_class = PaymentTypeSerializer
+
+class StatusViewSet(viewsets.ModelViewSet):
+    queryset = Status.objects.all()
+    serializer_class = StatusSerializer
 def get_from_table(table):
     rows = table.find_elements(By.TAG_NAME,'tr')
 

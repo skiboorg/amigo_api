@@ -2,6 +2,8 @@ from PIL import Image
 from io import BytesIO
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from random import choices
+import string
 
 import settings
 
@@ -27,3 +29,11 @@ def send_email(obj):
     msg_html = render_to_string('form_notify.html', {'obj': obj})
     send_mail('Заполнена форма', None, settings.YA_USER, [settings.MAIL_TO],
               fail_silently=False, html_message=msg_html)
+
+
+def create_random_string(digits=False, num=4):
+    if not digits:
+        random_string = ''.join(choices(string.ascii_uppercase + string.digits, k=num))
+    else:
+        random_string = ''.join(choices(string.digits, k=num))
+    return random_string

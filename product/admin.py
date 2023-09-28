@@ -7,9 +7,7 @@ class ProductPriceInline(NestedStackedInline):
     model = ProductPrice
     extra = 0
 
-class ProductSubCategoryInline(NestedStackedInline):
-    model = ProductSubCategory
-    extra = 0
+
 class ProductGalleryImageInline(NestedStackedInline):
     model = ProductGalleryImage
     extra = 0
@@ -26,9 +24,7 @@ class ProductGalleryImageInline(NestedStackedInline):
     image_preview.short_description = 'Текущее изображение'
 
 
-class ProductCategoryAdmin(NestedModelAdmin):
-    model = ProductCategory
-    inlines = [ProductSubCategoryInline]
+
 class ProductAdmin(NestedModelAdmin):
     model = Product
     list_display = ('image_preview','name',)
@@ -37,8 +33,11 @@ class ProductAdmin(NestedModelAdmin):
     fields = [
         'image_preview',
         'category',
-        'subCategory',
+        'filters',
         'isActive',
+        'isNew',
+        'isDiscount',
+        'discount',
         'isPromotionActive',
         'promotionText',
         'vendorCode',
@@ -61,4 +60,6 @@ class ProductAdmin(NestedModelAdmin):
 
 
 admin.site.register(Product, ProductAdmin)
-admin.site.register(ProductCategory,ProductCategoryAdmin)
+admin.site.register(ProductCategory)
+admin.site.register(Filter)
+admin.site.register(Sale)

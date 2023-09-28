@@ -61,8 +61,8 @@ class UserSerializer(serializers.ModelSerializer):
             'role',
             'client',
             'login',
+            'fio',
             'email',
-            'phone',
             'comment',
             'is_manager',
         ]

@@ -3,6 +3,7 @@ from django.db import models
 
 class Category(models.Model):
     name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
+    is_default = models.BooleanField(default=False, null=False)
     def __str__(self):
         return f'{self.name}'
 
@@ -26,6 +27,7 @@ class Client(models.Model):
         return f'{self.fio}'
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
 
@@ -82,7 +84,7 @@ class Note(models.Model):
     created_by = models.ForeignKey('user.User', on_delete=models.CASCADE, blank=True, null=True)
     is_done = models.BooleanField('Выполнена?', blank=False, null=True)
     by_shedule = models.BooleanField('Расписание ?', blank=False, null=True)
-    priority = models.BooleanField('Расписание ?', blank=False, null=True)
+    priority = models.BooleanField('Приоритет ?', blank=False, null=True)
     note_old_type = models.CharField('Тип из старой базы', max_length=255, blank=True, null=True)
     text = models.TextField('Текст',blank=True, null=True)
     created_at = models.DateTimeField(blank=True,null=True)

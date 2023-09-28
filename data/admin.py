@@ -4,3 +4,5 @@ from .models import *
 admin.site.register(City)
 admin.site.register(BlogCategory)
 admin.site.register(BlogItem)
+admin.site.register(TopBanner)
+admin.site.register(Banner)

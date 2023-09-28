@@ -13,10 +13,23 @@ import settings
 from .models import *
 
 
+class TopBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TopBanner
+        fields = '__all__'
+class BannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Banner
+        fields = '__all__'
 
 class BlogCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogCategory
+        fields = '__all__'
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
         fields = '__all__'
 
 class BlogItemSerializer(serializers.ModelSerializer):

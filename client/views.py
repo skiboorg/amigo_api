@@ -1,4 +1,6 @@
 import time
+
+from rest_framework.pagination import PageNumberPagination
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -7,12 +9,43 @@ from .models import *
 from rest_framework import generics, viewsets, parsers
 from rest_framework.response import Response
 
+import django_filters
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+
 from data.models import City
 from user.models import User
 
+class ClientPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
+
+
+class ClientFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method='my_custom_filter', label="Search")
+    def my_custom_filter(self, queryset, name, value):
+        return queryset.filter(
+            Q(fio__icontains=value) #|
+        )
+    class Meta:
+        model = Client
+        fields = ['fio']
+
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
-    serializer_class = ClientSerializer
+    #serializer_class = ClientSerializer
+    pagination_class = ClientPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = ClientFilter
+
+    def get_serializer_class(self):
+        is_full = self.request.query_params.get('full',None)
+        if is_full:
+            return ClientSerializer
+        else:
+            return ClientForTableSerializer
 
     def create(self, request, *args, **kwargs):
         print(request.data)
@@ -33,6 +66,9 @@ class ClientViewSet(viewsets.ModelViewSet):
             print(serializer.errors)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+
 
 def get_from_table(table):
     rows = table.find_elements(By.TAG_NAME,'tr')
