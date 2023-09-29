@@ -36,7 +36,7 @@ class UpdateCart(APIView):
                 cartItem.amount = 1
             else:
                 cartItem.amount += 1
-            cartItem.totalPrice = cartItem.amount * cartItem.productPrice.cost
+            cartItem.totalPrice = cartItem.amount * cartItem.productPrice.price
             cartItem.save()
             calcCart(cart)
         if data['action'] == 'remove_amount':
@@ -49,7 +49,7 @@ class UpdateCart(APIView):
                 cartItem.delete()
             else:
                 cartItem.amount -= 1
-                cartItem.totalPrice = cartItem.amount * cartItem.productPrice.cost
+                cartItem.totalPrice = cartItem.amount * cartItem.productPrice.price
                 cartItem.save()
             calcCart(cart)
         if data['action'] == 'delete_product':
