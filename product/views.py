@@ -60,7 +60,8 @@ class ProductFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method='my_custom_filter', label="Search")
     def my_custom_filter(self, queryset, name, value):
         return queryset.filter(
-            Q(name__icontains=value) #|
+            Q(name__icontains=value) |
+            Q(vendorCode__icontains=value)
         )
     class Meta:
         model = Product

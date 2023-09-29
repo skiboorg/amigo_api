@@ -27,6 +27,30 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
 
+    # def perform_create(self, serializer):
+    #     print(serializer)
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        #print(data)
+        new_order = Order.objects.create(
+            client_id=data.get('client',None),
+            contact_id=data.get('contact',None),
+            contractor_id=data.get('contractor',None),
+        )
+
+        for product in data['products']:
+            print(product)
+            
+            OrderItem.objects.create(
+                order=new_order,
+                product_id=product['productPrice']['product'],
+                productPrice_id=product['productPrice']['id'],
+                price_with_discount=product['price_with_discount'],
+                amount=product['amount']
+            )
+
+
 
 class UpdateOrderItem(APIView):
     def post(self, request):

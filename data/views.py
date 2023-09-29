@@ -25,7 +25,7 @@ class GetBanners(generics.ListAPIView):
     serializer_class = BannerSerializer
     queryset = Banner.objects.all()
 class GetNews(generics.ListAPIView):
-    serializer_class = BannerSerializer
+    serializer_class = BlogItemSerializer
 
     def get_queryset(self):
         item_type = self.request.query_params.get('item_type')

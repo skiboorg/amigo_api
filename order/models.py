@@ -65,12 +65,12 @@ class OrderItem(models.Model):
     amount = models.IntegerField(default=1,blank=True, null=True)
     total_price = models.DecimalField('Общий Стоимость', decimal_places=2, max_digits=13, default=0, null=True)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.total_weight = self.productPrice.weight * Decimal(self.amount)
-        self.total_volume = self.productPrice.volume * Decimal(self.amount)
-        self.total_price = self.productPrice.price * Decimal(self.amount)
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     self.total_weight = self.productPrice.weight * Decimal(self.amount)
+    #     self.total_volume = self.productPrice.volume * Decimal(self.amount)
+    #     self.total_price = self.productPrice.price * Decimal(self.amount)
+    #     super().save(*args, **kwargs)
 
 
 def order_item_post_save(sender, instance, created, **kwargs):
