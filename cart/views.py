@@ -35,7 +35,7 @@ class UpdateCart(APIView):
             if created:
                 cartItem.amount = 1
             else:
-                cartItem.amount +=1
+                cartItem.amount += 1
             cartItem.totalPrice = cartItem.amount * cartItem.productPrice.cost
             cartItem.save()
             calcCart(cart)
