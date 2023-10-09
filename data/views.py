@@ -1,13 +1,17 @@
 import time
 from datetime import datetime
 import json
+
+import django_filters
+from django.db.models import Q
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-
+from rest_framework import filters
 from .models import *
 from .serializers import *
 from rest_framework import generics
@@ -20,6 +24,22 @@ class GetBlogItem(generics.RetrieveAPIView):
 class GetTopBanners(generics.ListAPIView):
     serializer_class = TopBannerSerializer
     queryset = TopBanner.objects.all()
+class CityFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method='my_custom_filter', label="Search")
+    def my_custom_filter(self, queryset, name, value):
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(post_index__icontains=value) #|
+        )
+    class Meta:
+        model = City
+        fields = ['region']
+
+class GetCity(generics.ListAPIView):
+    serializer_class = CitySerializer
+    queryset = City.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = CityFilter
 
 class GetBanners(generics.ListAPIView):
     serializer_class = BannerSerializer

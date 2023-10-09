@@ -147,6 +147,13 @@ class GetRoles(generics.ListCreateAPIView):
     serializer_class = RoleSerializer
     queryset = Role.objects.all()
 
+class GetManagers(generics.ListCreateAPIView):
+    # permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(is_manager=True)
+
 class GetUserByRole(generics.ListAPIView):
     # permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer

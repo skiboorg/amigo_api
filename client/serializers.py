@@ -34,7 +34,8 @@ class ContactSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class DeliveryAddressSerializer(serializers.ModelSerializer):
-
+    from data.serializers import CitySerializer
+    city = CitySerializer(many=False, required=False, read_only=True)
     class Meta:
         model = DeliveryAddress
         fields = '__all__'
@@ -92,6 +93,22 @@ class ClientShortSerializer(serializers.ModelSerializer):
         model = Client
         fields = '__all__'
 
+
+class ClientEditSerializer(serializers.ModelSerializer):
+    from data.serializers import CitySerializer
+    from user.serializers import UserSerializer
+    contacts = ContactSerializer(many=True, read_only=True, required=False)
+    category = CategorySerializer(many=True, read_only=True, required=False)
+    city = CitySerializer(many=False, read_only=True, required=False)
+    manager = UserSerializer(many=False, read_only=True, required=False)
+    status = StatusSerializer(many=False, read_only=True, required=False)
+    notes = NoteSerializer(many=True, read_only=True, required=False)
+    contractors = ContractorSerializer(many=True, read_only=True, required=False)
+    delivery_addresses = DeliveryAddressSerializer(many=True, read_only=True, required=False)
+
+    class Meta:
+        model = Client
+        fields = '__all__'
 
 
 

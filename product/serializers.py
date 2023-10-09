@@ -12,11 +12,23 @@ from rest_framework import exceptions, serializers, status, generics
 import settings
 from .models import *
 
+
+class FeedbackImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeedbackImage
+        fields = '__all__'
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    images = FeedbackImageSerializer(many=True, required=False, read_only=True)
+
+    class Meta:
+        model = Feedback
+        fields = '__all__'
 class ProductGalleryImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductGalleryImage
         fields = '__all__'
-
 
 
 class ProductPriceSerializer(serializers.ModelSerializer):
@@ -24,8 +36,10 @@ class ProductPriceSerializer(serializers.ModelSerializer):
         model = ProductPrice
         fields = '__all__'
 
-
-
+class ProductTabSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductTab
+        fields = '__all__'
 
 
 class FilterSerializer(serializers.ModelSerializer):
@@ -33,15 +47,20 @@ class FilterSerializer(serializers.ModelSerializer):
         model = Filter
         fields = '__all__'
 
+
 class ProductCategorySerializer(serializers.ModelSerializer):
     filters = FilterSerializer(many=True, required=False, read_only=True)
     class Meta:
         model = ProductCategory
         fields = '__all__'
+
+
 class ProductSerializer(serializers.ModelSerializer):
     gallery = ProductGalleryImageSerializer(many=True, required=False, read_only=True)
     filters = FilterSerializer(many=True, required=False, read_only=True)
     prices = ProductPriceSerializer(many=True, required=False, read_only=True)
+    tabs = ProductTabSerializer(many=True, required=False, read_only=True)
+    feedbacks = FeedbackSerializer(many=True, required=False, read_only=True)
     class Meta:
         model = Product
         fields = '__all__'
@@ -74,9 +93,9 @@ class ProductShortSerializer(serializers.ModelSerializer):
             return f'{settings.SITE_URL}{obj.gallery.all().first().image.url}'
 
 
-
 class ProductCartSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+    #prices = ProductPriceSerializer(many=True, required=False, read_only=True)
     class Meta:
         model = Product
         fields = [
@@ -93,9 +112,6 @@ class ProductCartSerializer(serializers.ModelSerializer):
             return f'{settings.SITE_URL}{obj.gallery.all().filter(is_main=True).first().image.url}'
         else:
             return f'{settings.SITE_URL}{obj.gallery.all().first().image.url}'
-
-
-
 
 
 class ProductForTableSerializer(serializers.ModelSerializer):

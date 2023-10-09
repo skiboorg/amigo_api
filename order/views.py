@@ -16,6 +16,51 @@ from user.models import User
 from client.models import Client
 from product.services import create_random_string
 from .serializers import *
+from django_filters import IsoDateTimeFilter
+import django_filters
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+
+
+def calcOrder(order_id):
+    order = Order.objects.get(id=order_id)
+    total_price = Decimal(0)
+    total_weight = Decimal(0)
+    for product in order.products.all():
+        print(product)
+        product.total_price = 0
+        product.total_price+= product.price_with_discount * product.amount
+        total_price+= product.total_price
+        product.total_weight = 0
+        product.total_weight += product.productPrice.weight * product.amount
+        total_weight += product.total_weight
+        product.save()
+    order.total_price = total_price
+    order.total_weight = total_weight
+    order.save()
+
+class OrderItemViewSet(viewsets.ModelViewSet):
+
+    serializer_class = OrderItem
+    queryset = OrderItem.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        order_id = instance.order.id
+        self.perform_destroy(instance)
+        calcOrder(order_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs):
+        obj = self.get_object()
+        print(obj)
+        print(request.data)
+        obj.amount = request.data['amount']
+        obj.price_with_discount = request.data['price_with_discount']
+        obj.save()
+        calcOrder(request.data['order'])
+        return Response(status=200)
 
 class OrderPagination(PageNumberPagination):
     page_size = 10
@@ -26,6 +71,13 @@ class OrderViewSet(viewsets.ModelViewSet):
     pagination_class = OrderPagination
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
+
+    def get_serializer_class(self):
+        is_edit = self.request.query_params.get('edit',None)
+        if is_edit:
+            return OrderEditSerializer
+        else:
+            return OrderSerializer
 
     # def perform_create(self, serializer):
     #     print(serializer)
@@ -41,7 +93,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         for product in data['products']:
             print(product)
-            
             OrderItem.objects.create(
                 order=new_order,
                 product_id=product['productPrice']['product'],
@@ -49,8 +100,38 @@ class OrderViewSet(viewsets.ModelViewSet):
                 price_with_discount=product['price_with_discount'],
                 amount=product['amount']
             )
+        return Response(status=200)
 
-
+    def update(self, request, *args, **kwargs):
+        data = request.data
+        print(data)
+        instance = self.get_object()
+        client_id = data.get('client',None)
+        contact_id = data.get('contact',None)
+        contractor_id = data.get('contractor',None)
+        manager_id = data.get('manager',None)
+        if client_id:
+            instance.client_id = client_id
+        if contact_id:
+            instance.contact_id = contact_id
+        if contractor_id:
+            instance.contractor_id = contractor_id
+        if manager_id:
+            instance.manager_id = manager_id
+        instance.save()
+        products = data.get('products', None)
+        if products:
+            for product in products:
+                print(product)
+                OrderItem.objects.create(
+                    order=instance,
+                    product_id=product['productPrice']['product'],
+                    productPrice_id=product['productPrice']['id'],
+                    price_with_discount=product['price_with_discount'],
+                    amount=product['amount']
+                )
+            calcOrder(instance.id)
+        return Response(status=200)
 
 class UpdateOrderItem(APIView):
     def post(self, request):

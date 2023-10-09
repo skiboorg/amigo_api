@@ -1,5 +1,5 @@
 import time
-
+import datetime
 from rest_framework.pagination import PageNumberPagination
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -49,26 +49,46 @@ class ClientViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         print(request.data)
-        serializer = self.get_serializer(data=request.data['client'])
-        if serializer.is_valid():
-            obj = serializer.save()
-            for c in request.data['contacts']:
-                print(c)
-                c_serializer = ContactSerializer(data=c)
-                if c_serializer.is_valid():
-                    c_obj = c_serializer.save()
-                    c_obj.client = obj
-                    c_obj.save()
-                else:
-                    print(serializer.errors)
+        data = request.data
+        new_client = Client.objects.create(
+            manager_id= data.get('manager',None),
+            status_id = data.get('status',None),
+            city_id = data.get('city',None),
+            fio = data.get('fio',None),
+            web = data.get('web',None),
+            address = data.get('address',None),
+            comment = data.get('comment',None),
+            created_at=datetime.datetime.now().date()
+        )
+        new_client.category.add(*data.get('category',None))
 
-        else:
-            print(serializer.errors)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(status=status.HTTP_201_CREATED)
 
+class ContactViewSet(viewsets.ModelViewSet):
+    serializer_class = ContactSerializer
+    queryset = Contact.objects.all()
 
+class NoteViewSet(viewsets.ModelViewSet):
+    serializer_class = NoteSerializer
+    queryset = Note.objects.all()
 
+class ContractorViewSet(viewsets.ModelViewSet):
+    serializer_class = ContractorSerializer
+    queryset = Contractor.objects.all()
+
+class AddressViewSet(viewsets.ModelViewSet):
+    serializer_class = DeliveryAddressSerializer
+    queryset = DeliveryAddress.objects.all()
+
+    # def update(self, request, *args, **kwargs):
+    #     print(request.data)
+class GetCategory(generics.ListAPIView):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+class GetStatus(generics.ListAPIView):
+    serializer_class = StatusSerializer
+    queryset = Status.objects.all()
 
 def get_from_table(table):
     rows = table.find_elements(By.TAG_NAME,'tr')

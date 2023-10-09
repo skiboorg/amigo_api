@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/product/', include('product.urls')),
     path('api/cart/', include('cart.urls')),
     path('api/form/', include('form.urls')),
+    path('api/report/', include('report.urls')),
     # path('api/data/', include(data_router.urls)),
 
     path('ckeditor/', include('ckeditor_uploader.urls')),

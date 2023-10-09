@@ -7,6 +7,13 @@ class ProductPriceInline(NestedStackedInline):
     model = ProductPrice
     extra = 0
 
+class ProductTabInline(NestedStackedInline):
+    model = ProductTab
+    extra = 0
+class FeedbackInline(NestedStackedInline):
+    model = Feedback
+    extra = 0
+
 
 class ProductGalleryImageInline(NestedStackedInline):
     model = ProductGalleryImage
@@ -29,7 +36,7 @@ class ProductAdmin(NestedModelAdmin):
     model = Product
     list_display = ('image_preview','name',)
     readonly_fields = ['image_preview']
-    inlines = [ProductGalleryImageInline, ProductPriceInline]
+    inlines = [ProductGalleryImageInline, ProductPriceInline, ProductTabInline, FeedbackInline]
     fields = [
         'image_preview',
         'category',
@@ -44,11 +51,8 @@ class ProductAdmin(NestedModelAdmin):
         'name',
         'slug',
         'shortDescription',
-
-        'description',
-        'feedingRate',
-        'delivery',
     ]
+
     def image_preview(self, obj):
         if obj.gallery.all().filter(is_main=True):
             return mark_safe(

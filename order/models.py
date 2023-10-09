@@ -40,8 +40,8 @@ class Order(models.Model):
     created_at_date = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     orderComment = models.TextField(blank=True, null=True)
-    total_weight = models.DecimalField('Общий Вес, кг', decimal_places=3, max_digits=6, default=0, null=True)
-    total_volume = models.DecimalField('Общий Объем, m3', decimal_places=3, max_digits=6, default=0, null=True)
+    total_weight = models.DecimalField('Общий Вес, кг', decimal_places=3, max_digits=9, default=0, null=True)
+    total_volume = models.DecimalField('Общий Объем, m3', decimal_places=3, max_digits=9, default=0, null=True)
     amount = models.IntegerField(blank=True, null=True)
     total_price = models.DecimalField('Общий Стоимость', decimal_places=2, max_digits=16, default=0, null=True)
 
@@ -60,10 +60,13 @@ class OrderItem(models.Model):
     productPrice = models.ForeignKey('product.ProductPrice', on_delete=models.CASCADE, blank=True, null=True)
     price_with_discount = models.DecimalField('Стоимость со скидкой', decimal_places=2, max_digits=8, default=0,
                                               null=True)
-    total_weight = models.DecimalField('Общий Вес, кг', decimal_places=3, max_digits=6, default=0, null=True)
-    total_volume = models.DecimalField('Общий Объем, m3', decimal_places=3, max_digits=6, default=0, null=True)
+    total_weight = models.DecimalField('Общий Вес, кг', decimal_places=3, max_digits=9, default=0, null=True)
+    total_volume = models.DecimalField('Общий Объем, m3', decimal_places=3, max_digits=9, default=0, null=True)
     amount = models.IntegerField(default=1,blank=True, null=True)
     total_price = models.DecimalField('Общий Стоимость', decimal_places=2, max_digits=13, default=0, null=True)
+
+    class Meta:
+        ordering = ('-id',)
 
     # def save(self, *args, **kwargs):
     #     super().save(*args, **kwargs)
@@ -82,13 +85,13 @@ def order_item_post_save(sender, instance, created, **kwargs):
     # instance.total_price = instance.productPrice.price * Decimal(instance.amount)
     # print('save')
 
-def order_post_save(sender, instance, created, **kwargs):
-    for product in instance.products.all():
-        product.total_weight = product.productPrice.weight * Decimal(product.amount)
-        product.total_volume = product.productPrice.volume * Decimal(product.amount)
-        product.total_price = product.productPrice.price * Decimal(product.amount)
-        product.save()
+# def order_post_save(sender, instance, created, **kwargs):
+#     for product in instance.products.all():
+#         product.total_weight = product.productPrice.weight * Decimal(product.amount)
+#         product.total_volume = product.productPrice.volume * Decimal(product.amount)
+#         product.total_price = product.productPrice.price * Decimal(product.amount)
+#         product.save()
 
 
-post_save.connect(order_post_save, sender=Order)
+#post_save.connect(order_post_save, sender=Order)
 post_save.connect(order_item_post_save, sender=OrderItem)

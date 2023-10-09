@@ -87,8 +87,8 @@ class Note(models.Model):
     priority = models.BooleanField('Приоритет ?', blank=False, null=True)
     note_old_type = models.CharField('Тип из старой базы', max_length=255, blank=True, null=True)
     text = models.TextField('Текст',blank=True, null=True)
-    created_at = models.DateTimeField(blank=True,null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, blank=True, null=True, related_name='notes')
 
     def __str__(self):

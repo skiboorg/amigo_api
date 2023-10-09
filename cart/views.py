@@ -20,6 +20,7 @@ class UpdateCart(APIView):
     def post(self, request):
         data = request.data
         session_id = data['session_id']
+        amount = int(data['amount'])
         # cart = Cart.objects.get(sessionID=session_id)
         if request.user.is_authenticated:
             cart, _ = Cart.objects.get_or_create(user=request.user)
@@ -33,9 +34,9 @@ class UpdateCart(APIView):
             )
             print(cartItem)
             if created:
-                cartItem.amount = 1
+                cartItem.amount = amount
             else:
-                cartItem.amount += 1
+                cartItem.amount += amount
             cartItem.totalPrice = cartItem.amount * cartItem.productPrice.price
             cartItem.save()
             calcCart(cart)

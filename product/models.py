@@ -65,9 +65,6 @@ class Product(models.Model):
     category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, blank=False, null=True)
     filters = models.ManyToManyField(Filter, blank=False)
     shortDescription = models.TextField('Короткое описание', blank=True, null=True)
-    description = RichTextUploadingField('Состав', blank=True, null=True)
-    feedingRate = RichTextUploadingField('Норма кормления  ', blank=True, null=True)
-    delivery = RichTextUploadingField('Доставка и оплата', blank=True, null=True)
     discount = models.IntegerField('Скидка %', default=0, null=False)
     def __str__(self):
         return f'{self.name}'
@@ -83,6 +80,18 @@ class Product(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+class ProductTab(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=False,
+                                related_name='tabs')
+    label = models.CharField('Название таба', max_length=255, blank=False, null=True)
+    text = RichTextUploadingField('Текст', blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.label}'
+
+    class Meta:
+        verbose_name = 'Таб товара'
+        verbose_name_plural = 'Табы товаров'
 
 class ProductGalleryImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=False,
@@ -160,3 +169,33 @@ def sale_post_save(sender, instance, created, **kwargs):
 
 
 post_save.connect(sale_post_save, sender=Sale)
+
+
+class Feedback(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=False,
+                                related_name='feedbacks')
+    text = RichTextUploadingField(blank=True, null=True)
+    name = models.CharField(max_length=255,blank=True, null=True)
+
+    def __str__(self):
+        return f'От {self.name}'
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+
+
+class FeedbackImage(models.Model):
+    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, null=True, blank=False,
+                                related_name='images')
+    image = ResizedImageField(size=[120, 200], quality=95, force_format='WEBP', upload_to='fb/gallery',
+                              blank=False, null=True)
+
+    def __str__(self):
+        return f''
+
+
+    class Meta:
+        verbose_name = 'Картинка отзыва'
+        verbose_name_plural = 'Картинки отзывов'

@@ -65,7 +65,23 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
+class OrderEditSerializer(serializers.ModelSerializer):
+    from data.serializers import CitySerializer
+    from user.serializers import UserSerializer
+    from client.serializers import ClientEditSerializer, ContractorSerializer, ContactSerializer
+    products = OrderItemSerializer(many=True, required=False, read_only=True)
+    city = CitySerializer(many=False, required=False, read_only=True)
+    client = ClientEditSerializer(many=False, required=False, read_only=True)
+    contractor = ContractorSerializer(many=False, required=False, read_only=True)
+    manager = UserSerializer(many=False, required=False, read_only=True)
+    contact = ContactSerializer(many=False, required=False, read_only=True)
+    delivery = DeliverySerializer(many=False, required=False, read_only=True)
+    delivery_company = DeliveryCompanySerializer(many=False, required=False, read_only=True)
+    payment_type = PaymentTypeSerializer(many=False, required=False, read_only=True)
+    status = StatusSerializer(many=False, required=False, read_only=True)
+    class Meta:
+        model = Order
+        fields = '__all__'
 
 
 
