@@ -24,6 +24,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     order_date = serializers.SerializerMethodField()
 
     class Meta:
+        ref_name='rep_item'
         model = OrderItem
         fields = '__all__'
 
