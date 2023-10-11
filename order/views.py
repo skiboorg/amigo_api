@@ -107,6 +107,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         print(data)
         instance = self.get_object()
         client_id = data.get('client',None)
+        status_id = data.get('status',None)
         contact_id = data.get('contact',None)
         contractor_id = data.get('contractor',None)
         manager_id = data.get('manager',None)
@@ -118,6 +119,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             instance.contractor_id = contractor_id
         if manager_id:
             instance.manager_id = manager_id
+        if status_id:
+            instance.status_id = status_id
         instance.save()
         products = data.get('products', None)
         if products:
