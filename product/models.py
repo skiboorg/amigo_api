@@ -50,6 +50,7 @@ class Filter(models.Model):
 
 
 class Product(models.Model):
+    isAvailable = models.BooleanField('В наличии?', default=True)
     isActive = models.BooleanField('Отображать?', default=True)
     isNew = models.BooleanField('Товар новинка?', default=False)
     isDiscount = models.BooleanField('Товар со скидкой?', default=True)

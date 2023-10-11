@@ -61,6 +61,7 @@ class ProductSerializer(serializers.ModelSerializer):
     prices = ProductPriceSerializer(many=True, required=False, read_only=True)
     tabs = ProductTabSerializer(many=True, required=False, read_only=True)
     feedbacks = FeedbackSerializer(many=True, required=False, read_only=True)
+    category = ProductCategorySerializer(many=False, required=False, read_only=True)
     class Meta:
         model = Product
         fields = '__all__'
