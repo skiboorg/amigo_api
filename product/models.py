@@ -107,8 +107,7 @@ class ProductGalleryImage(models.Model):
 
     def save(self, *args, **kwargs):
         from .services import create_thumb
-        if not self.imageThumb:
-            self.imageThumb.save(f'{self.product.slug}-thumb.jpg', File(create_thumb(self.image)), save=False)
+        self.imageThumb.save(f'{self.product.slug}-thumb.jpg', File(create_thumb(self.image)), save=False)
         super().save(*args, **kwargs)
 
     class Meta:
