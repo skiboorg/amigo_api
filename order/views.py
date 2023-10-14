@@ -67,10 +67,28 @@ class OrderPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 10000
 
+
+
+class OrderFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method='my_custom_filter', label="Search")
+    created_at_gte = IsoDateTimeFilter(field_name="created_at_date", lookup_expr='gte')
+    created_at_lte = IsoDateTimeFilter(field_name="created_at_date", lookup_expr='lte')
+    total_price_gte = django_filters.NumberFilter(field_name="total_price", lookup_expr='gte')
+    total_price_lte = django_filters.NumberFilter(field_name="total_price", lookup_expr='lte')
+    def my_custom_filter(self, queryset, name, value):
+        return queryset.filter(
+            Q(client__fio__icontains=value)
+
+        )
+    class Meta:
+        model = Order
+        fields = ['status__id','manager__id','payment_type__id']
+
 class OrderViewSet(viewsets.ModelViewSet):
     pagination_class = OrderPagination
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
+    filterset_class = OrderFilter
 
     def get_serializer_class(self):
         is_edit = self.request.query_params.get('edit',None)

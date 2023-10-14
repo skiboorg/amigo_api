@@ -1,12 +1,16 @@
 import json
 
+import django_filters
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 from .models import *
 from rest_framework import generics, viewsets, parsers
-
+from rest_framework import filters
 
 import logging
 logger = logging.getLogger(__name__)
@@ -24,51 +28,27 @@ class GetUser(generics.RetrieveAPIView):
 class AddUser(APIView):
     def post(self,request):
         print(request.data)
-        setattr(request.data, '_mutable', True)
-        try:
-            request.data.pop('avatar')
-        except:
-            pass
-        try:
-            request.data.pop('files')
-            files_descriptions = request.data.pop('descriptions')
-        except:
-            files_descriptions = []
-        try:
-            user_networks = request.data.pop('networks')
-        except:
-            user_networks = []
+        data = request.data
+        result = {}
 
+        if data['password1'] != data['password2']:
+            result = {'success':False,'message':'Пароли не совпадают'}
+            return Response(result,status=200)
+        new_user = User.objects.create(
+            email=data['email'],
+            client_id=data['client'],
+            login=data['email'],
+            fio=data['fio'],
+            comment=data['comment'],
+            is_manager=data['is_manager'],
+            is_staff=data['is_staff'],
+            plain_password=data['password1'],
+        )
+        new_user.set_password(data['password1'])
+        new_user.save()
+        result = {'success': True, 'message': 'Пользователь успешно создан'}
+        return Response(result, status=200)
 
-        data = json.loads(json.dumps(request.data))
-        json_data = {}
-
-        for dat in data:
-            print(dat)
-            json_data[dat] = json.loads(data[dat])
-        serializer = UserSerializer(data=json_data)
-        avatar = request.FILES.get('avatar', None)
-        if serializer.is_valid():
-            obj = serializer.save()
-            # obj.added_by = request.user
-            print(obj)
-            if avatar:
-                obj.avatar = avatar
-            obj.plain_password = json_data['password']
-            obj.role_id = json_data['role']
-            obj.set_password(json_data['password'])
-            obj.save()
-            # for index,file in enumerate(request.FILES.getlist('files')):
-            #     UserFile.objects.create(file=file,user=obj,description=files_descriptions[index])
-            # for network in user_networks:
-            #     network_json_data = json.loads(network)
-            #     print(network_json_data)
-            #     UserNetwork.objects.create(user=obj,network_id=network_json_data['id']['id'],link=network_json_data['link'])
-
-        else:
-            print(serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_201_CREATED)
 
 
 class UpdateUser(APIView):
@@ -137,10 +117,32 @@ class DeleteUser(generics.DestroyAPIView):
     lookup_field = 'uuid'
 
 
+
+class UserPagination(PageNumberPagination):
+    page_size = 15
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
+
+
+class UserFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(method='my_custom_filter', label="Search")
+    def my_custom_filter(self, queryset, name, value):
+        return queryset.filter(
+            Q(client__fio__icontains=value) |
+            Q(fio__icontains=value)
+
+        )
+    class Meta:
+        model = User
+        fields = ['is_manager','is_staff']
+
 class GetAllUsers(generics.ListAPIView):
     # permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     queryset = User.objects.filter(is_active=True)
+    pagination_class = UserPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = UserFilter
 
 class GetRoles(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated]

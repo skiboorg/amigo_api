@@ -32,10 +32,13 @@ class UserAdmin(BaseUserAdmin):
              'role',
              "first_name",
              "last_name",
+            'client',
             'fio',
+
              "is_manager",
              'email',
                 "comment",
+                "plain_password",
 
 
 

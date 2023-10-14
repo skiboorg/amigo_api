@@ -75,6 +75,7 @@ class User(AbstractUser):
     login = models.CharField('Логин', max_length=255, blank=True, null=True, unique=True)
     email = models.CharField('Почта', max_length=255, blank=True, null=True)
     fio = models.CharField('ФИО', max_length=255, blank=True, null=True)
+    plain_password = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
     is_manager = models.BooleanField(default=False)
 

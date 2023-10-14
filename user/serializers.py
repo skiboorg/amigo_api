@@ -53,6 +53,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(many=False,required=False,read_only=True)
+    client = serializers.SerializerMethodField()
     class Meta:
         ref_name = "User1"
         model = User
@@ -65,11 +66,18 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'comment',
             'is_manager',
+            'is_staff',
+            'plain_password',
         ]
 
         extra_kwargs = {
             'password': {'required': False},
         }
+    def get_client(self,obj):
+        if obj.client:
+            return obj.client.fio
+        else:
+            return 'Не назначен'
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

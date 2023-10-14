@@ -27,11 +27,12 @@ class ClientFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method='my_custom_filter', label="Search")
     def my_custom_filter(self, queryset, name, value):
         return queryset.filter(
-            Q(fio__icontains=value) #|
+            Q(fio__icontains=value)
+
         )
     class Meta:
         model = Client
-        fields = ['fio']
+        fields = ['fio','status__id','manager__id']
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()

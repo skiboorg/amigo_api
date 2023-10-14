@@ -48,11 +48,16 @@ class ProductPriceFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(method='my_custom_filter', label="Search")
     def my_custom_filter(self, queryset, name, value):
         return queryset.filter(
-            Q(product__name__icontains=value) #|
+            Q(product__name__icontains=value) |
+            Q(textLabel__icontains=value) |
+            Q(vendorCode__icontains=value)
         )
     class Meta:
         model = ProductPrice
         fields = ['id']
+
+
+
 
 class GetProductPrices(generics.ListAPIView):
     serializer_class = ProductPriceForTableSerializer
@@ -91,6 +96,9 @@ class ProductTabViewSet(viewsets.ModelViewSet):
 class ProductImagesViewSet(viewsets.ModelViewSet):
     serializer_class = ProductGalleryImageSerializer
     queryset = ProductGalleryImage.objects.all()
+
+
+
 
 
 class ProductViewSet(viewsets.ModelViewSet):
