@@ -2,10 +2,15 @@ from _decimal import Decimal
 
 from django.db import models
 from django.db.models.signals import post_save
+from django_resized import ResizedImageField
 
 
 class Delivery(models.Model):
     name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
+    description = models.TextField(blank=True, null=True)
+    image = ResizedImageField(size=[400, 300], quality=95, force_format='WEBP', upload_to='order/delivery',
+                              blank=True, null=True)
+    is_self_delivery = models.BooleanField(default=False, null=False)
     def __str__(self):
         return f'{self.name}'
 
@@ -16,6 +21,7 @@ class DeliveryCompany(models.Model):
 
 class PaymentType(models.Model):
     name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
+    description = models.TextField(blank=True, null=True)
     def __str__(self):
         return f'{self.name}'
 
@@ -45,6 +51,7 @@ class Order(models.Model):
     status = models.ForeignKey(Status,on_delete=models.SET_NULL,blank=True, null=True)
     delivery_status = models.ForeignKey(DeliveryStatus,on_delete=models.SET_NULL,blank=True, null=True)
     delivery_address = models.TextField(blank=True, null=True)
+    delivery_comment = models.TextField(blank=True, null=True)
     is_archive = models.BooleanField(default=False, null=False)
     created_at_time = models.TimeField(auto_now_add=True, null=True)
     created_at_date = models.DateField(auto_now_add=True, null=True)
