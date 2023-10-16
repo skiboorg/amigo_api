@@ -83,7 +83,7 @@ class ProductFilter(django_filters.FilterSet):
         )
     class Meta:
         model = Product
-        fields = ['id']
+        fields = ['id','category__slug']
 
 class ProductPriceViewSet(viewsets.ModelViewSet):
     serializer_class = ProductPriceSerializer
