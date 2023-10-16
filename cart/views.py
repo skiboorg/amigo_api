@@ -46,10 +46,10 @@ class UpdateCart(APIView):
                 product_id=data['product_id'],
                 productPrice_id=data['productPrice_id']
             )
-            if cartItem.amount - 1 == 0:
+            if cartItem.amount - amount >= 0:
                 cartItem.delete()
             else:
-                cartItem.amount -= 1
+                cartItem.amount -= amount
                 cartItem.totalPrice = cartItem.amount * cartItem.productPrice.price
                 cartItem.save()
             calcCart(cart)
