@@ -24,17 +24,27 @@ class Status(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+class DeliveryStatus(models.Model):
+    name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
+    def __str__(self):
+        return f'{self.name}'
+
 class Order(models.Model):
+    old_id = models.IntegerField(blank=True, null=True)
     session_id = models.CharField(max_length=255, blank=True, null=True)
-    manager = models.ForeignKey('user.User', on_delete=models.CASCADE, blank=True, null=True)
-    city = models.ForeignKey('data.City',on_delete=models.CASCADE,blank=True, null=True)
+    track_code = models.CharField(max_length=255, blank=True, null=True)
+    manager = models.ForeignKey('user.User', on_delete=models.SET_NULL, blank=True, null=True)
+    city = models.ForeignKey('data.City',on_delete=models.SET_NULL,blank=True, null=True)
     client = models.ForeignKey('client.Client',on_delete=models.CASCADE,blank=True, null=True,related_name='orders')
-    contractor = models.ForeignKey('client.Contractor',on_delete=models.CASCADE,blank=True, null=True)
-    contact = models.ForeignKey('client.Contact',on_delete=models.CASCADE,blank=True, null=True)
-    delivery = models.ForeignKey(Delivery,on_delete=models.CASCADE,blank=True, null=True)
-    delivery_company = models.ForeignKey(DeliveryCompany,on_delete=models.CASCADE,blank=True, null=True)
-    payment_type = models.ForeignKey(PaymentType,on_delete=models.CASCADE,blank=True, null=True)
-    status = models.ForeignKey(Status,on_delete=models.CASCADE,blank=True, null=True)
+    contractor = models.ForeignKey('client.Contractor',on_delete=models.SET_NULL,blank=True, null=True)
+    contact = models.ForeignKey('client.Contact',on_delete=models.SET_NULL,blank=True, null=True)
+    delivery = models.ForeignKey(Delivery,on_delete=models.SET_NULL,blank=True, null=True)
+    delivery_price = models.DecimalField(default=0,decimal_places=2, max_digits=6,blank=True, null=True)
+    delivery_company = models.ForeignKey(DeliveryCompany,on_delete=models.SET_NULL,blank=True, null=True)
+    payment_type = models.ForeignKey(PaymentType,on_delete=models.SET_NULL,blank=True, null=True)
+    status = models.ForeignKey(Status,on_delete=models.SET_NULL,blank=True, null=True)
+    delivery_status = models.ForeignKey(DeliveryStatus,on_delete=models.SET_NULL,blank=True, null=True)
+    delivery_address = models.TextField(blank=True, null=True)
     is_archive = models.BooleanField(default=False, null=False)
     created_at_time = models.TimeField(auto_now_add=True, null=True)
     created_at_date = models.DateField(auto_now_add=True, null=True)

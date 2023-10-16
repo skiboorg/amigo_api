@@ -6,6 +6,7 @@ from .models import *
 
 class UserAdmin(BaseUserAdmin):
     list_display = (
+        'old_id',
         'login',
         'date_joined',
 
@@ -29,6 +30,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('login', 'password')}),
         ('Personal info',
          {'fields': (
+             'old_id',
              'role',
              "first_name",
              "last_name",

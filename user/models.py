@@ -68,6 +68,7 @@ class RolePage(models.Model):
     def __str__(self):
         return f'{self.role.name} - {self.page.name} - {self.permission.name}'
 class User(AbstractUser):
+    old_id = models.IntegerField(blank=True, null=True)
     username = None
     role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
     client = models.ForeignKey('client.Client', on_delete=models.SET_NULL, blank=True, null=True,related_name='client')
@@ -84,7 +85,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name} - {self.role.name if self.role else "нет роли"}'
+        return f'{self.old_id} || {self.first_name} {self.last_name} - {self.role.name if self.role else "нет роли"}'
 
     class Meta:
         verbose_name = 'Пользователь'

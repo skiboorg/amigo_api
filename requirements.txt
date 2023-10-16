@@ -17,6 +17,6 @@ psycopg2
 django-resized
 drf-yasg
 python-dateutil
-
+openpyxl
 
 

@@ -54,47 +54,26 @@ class AddUser(APIView):
 class UpdateUser(APIView):
     def post(self,request,*args,**kwargs):
         print(request.data)
-        setattr(request.data, '_mutable', True)
-        try:
-            request.data.pop('files')
-            files_descriptions = request.data.pop('descriptions')
-        except:
-            files_descriptions = []
-        # try:
-        #     user_networks = request.data.pop('networks')
-        # except:
-        #     user_networks = []
-
-
-        data = json.loads(json.dumps(request.data))
-
-
-
-        json_data = {}
-        for dat in data:
-            json_data[dat] = json.loads(data[dat])
-        instance = User.objects.get(uuid=json_data['uuid'])
-
-
-        serializer = UserSerializer(instance,data=json_data)
-
-        if serializer.is_valid():
-            obj = serializer.save()
-            obj.added_by = request.user
-            obj.save()
-            # for index,file in enumerate(request.FILES.getlist('files')):
-            #     UserFile.objects.create(file=file,user=obj,description=files_descriptions[index])
-            #
-            # for network in user_networks:
-            #     network_json_data = json.loads(network)
-            #     print(network_json_data)
-            #
-            #     UserNetwork.objects.create(user=obj,name=network_json_data['name'],link=network_json_data['link'])
-
-        else:
-            print(serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_201_CREATED)
+        data = request.data
+        password1 = data.get('password1',None)
+        user = User.objects.get(id=data['id'])
+        if password1:
+            if data['password1'] != data['password2']:
+                result = {'success': False, 'message': 'Пароли не совпадают'}
+                return Response(result, status=200)
+            else:
+                user.set_password(data['password1'])
+                user.plain_password = data['password1']
+        user.client_id = data['client']
+        user.email = data['email']
+        user.login = data['login']
+        user.fio = data['fio']
+        user.comment = data['comment']
+        user.is_manager = data['is_manager']
+        user.is_staff = data['is_staff']
+        user.save()
+        result = {'success': True, 'message': 'Пользователь успешно обновлен'}
+        return Response(result,status=status.HTTP_201_CREATED)
 
 class GetMyUsers(generics.ListAPIView):
     serializer_class = UserSerializer
@@ -104,10 +83,10 @@ class GetMyUsers(generics.ListAPIView):
         return User.objects.filter(added_by=user)
 
 
-class GetUserByUuid(generics.RetrieveAPIView):
+class GetUserByID(generics.RetrieveAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'uuid'
+    serializer_class = UserFullSerializer
+    lookup_field = 'id'
 
 
 
@@ -165,3 +144,35 @@ class GetUserByRole(generics.ListAPIView):
 
 
 
+class FillUser(APIView):
+    def get(self,request):
+        from openpyxl import load_workbook
+        users = User.objects.filter(is_superuser=False)
+        users.delete()
+        wb = load_workbook(filename='users.xlsx')
+        sheet_obj = wb.active
+        max_row = sheet_obj.max_row
+
+        # Loop will print all columns name
+
+        for i in range(2, max_row + 1):
+
+            old_id = sheet_obj.cell(row=i, column=1)
+            login = sheet_obj.cell(row=i, column=2)
+            fio = sheet_obj.cell(row=i, column=3)
+            is_manager = sheet_obj.cell(row=i, column=4)
+            is_staff = sheet_obj.cell(row=i, column=5)
+            print(old_id.value,login.value,fio.value,is_manager.value,is_staff.value)
+            u = User.objects.create(
+                old_id=old_id.value,
+                login=login.value,
+                fio=fio.value,
+                is_manager = True if is_manager.value==1 else False,
+                is_staff = True if is_staff.value==1 else False,
+                plain_password=login.value
+            )
+            u.set_password(login.value)
+            u.save()
+
+
+        return Response(status=200)

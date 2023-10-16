@@ -49,7 +49,34 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserFullSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(many=False,required=False,read_only=True)
+    client = serializers.SerializerMethodField()
+    class Meta:
+        ref_name = "User1"
+        model = User
+        fields = [
+            "id",
+            'role',
+            'client',
+            'login',
+            'fio',
+            'email',
+            'comment',
+            'is_manager',
+            'is_staff',
+            'plain_password',
+        ]
 
+        extra_kwargs = {
+            'password': {'required': False},
+        }
+    def get_client(self,obj):
+        from client.serializers import ClientForTableSerializer
+        if obj.client:
+            return ClientForTableSerializer(obj.client).data
+        else:
+            return None
 
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(many=False,required=False,read_only=True)

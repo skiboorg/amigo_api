@@ -98,11 +98,14 @@ class CategoriesReport(APIView):
             order_items_filtered = order_items.filter(
                 order__created_at_date__range=[self.request.query_params.get('date_start'),
                                                self.request.query_params.get('date_end')])
-            print(order_items_filtered)
-            print(order_items)
+            print('order_items_filtered',order_items_filtered)
+            for i in order_items_filtered:
+                print(i.amount)
+            print('order_items',order_items)
             result.append({
                 "name":category.name,
-                "products_count":order_items_filtered.count(),
+                "orders_count":order_items_filtered.count(),
+                "products_count":order_items_filtered.aggregate(Sum('amount'))['amount__sum'],
                 "total_price": order_items_filtered.aggregate(Sum('total_price'))['total_price__sum']
             })
         return Response(result,status=200)

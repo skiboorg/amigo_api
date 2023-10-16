@@ -14,8 +14,9 @@ urlpatterns = [
     path('add_user', views.AddUser.as_view()),
     path('update_user', views.UpdateUser.as_view()),
 
-    path('get_user/<uuid>', views.GetUserByUuid.as_view()),
+    path('get_user/<id>', views.GetUserByID.as_view()),
     path('delete_user/<uuid>', views.DeleteUser.as_view()),
+    path('fill', views.FillUser.as_view()),
 
 
 

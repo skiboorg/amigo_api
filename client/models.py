@@ -13,6 +13,7 @@ class Status(models.Model):
         return f'{self.name}'
 
 class Client(models.Model):
+    old_id = models.IntegerField(blank=True, null=True)
     manager = models.ForeignKey('user.User', on_delete=models.SET_NULL, blank=True, null=True,related_name='manager')
     category = models.ManyToManyField(Category, null=True)
     status = models.ForeignKey(Status, on_delete=models.SET_NULL, blank=True, null=True)
@@ -32,6 +33,7 @@ class Client(models.Model):
         verbose_name_plural = 'Клиенты'
 
 class Contact(models.Model):
+    old_id = models.IntegerField(blank=True, null=True)
     name = models.CharField('ИМЯ', max_length=255, blank=True, null=True)
     phone = models.CharField('Телефон', max_length=255, blank=True, null=True)
     email = models.CharField('Email', max_length=255, blank=True, null=True)
@@ -48,6 +50,7 @@ class Contact(models.Model):
 
 
 class Contractor(models.Model):
+    old_id = models.IntegerField(blank=True, null=True)
     name = models.CharField('Название', max_length=255, blank=False, null=True)
     inn = models.CharField('Инн', max_length=255, blank=False, null=True)
     is_physic = models.BooleanField('Физ. лицо?', blank=False, null=True)
@@ -65,6 +68,7 @@ class Contractor(models.Model):
 
 
 class DeliveryAddress(models.Model):
+    old_id = models.IntegerField(blank=True, null=True)
     old_city = models.CharField('Город в старой базе', max_length=255, blank=True, null=True)
     city = models.ForeignKey('data.City', on_delete=models.SET_NULL, blank=True, null=True)
     address = models.CharField('Адрес', max_length=255, blank=True, null=True)
@@ -81,6 +85,7 @@ class DeliveryAddress(models.Model):
 
 
 class Note(models.Model):
+    old_id = models.IntegerField(blank=True, null=True)
     created_by = models.ForeignKey('user.User', on_delete=models.CASCADE, blank=True, null=True)
     is_done = models.BooleanField('Выполнена?', blank=False, null=True)
     by_shedule = models.BooleanField('Расписание ?', blank=False, null=True)

@@ -65,7 +65,7 @@ class GetProductPrices(generics.ListAPIView):
     pagination_class = ProductPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = ProductPriceFilter
-    ordering_fields = ['weight', 'cost', 'at_store','isActive']
+    ordering_fields = ['weight', 'price', 'at_store','isActive']
 
 
 class GetProductsByFilter(generics.ListAPIView):
