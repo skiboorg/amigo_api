@@ -314,7 +314,7 @@ class FillFas(APIView):
             product_code = sheet_obj.cell(row=i, column=1)
             name = sheet_obj.cell(row=i, column=2)
             code = sheet_obj.cell(row=i, column=3)
-            price = sheet_obj.cell(row=i, column=3)
+            price = sheet_obj.cell(row=i, column=4)
             print(product_code.value, name.value, code.value)
             prod = Product.objects.get(vendorCode=product_code.value)
             ProductPrice.objects.create(
