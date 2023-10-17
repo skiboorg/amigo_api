@@ -246,3 +246,85 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 
+class FillCat(APIView):
+    def get(self,request):
+        from openpyxl import load_workbook
+        cats = ProductCategory.objects.all()
+        cats.delete()
+        wb = load_workbook(filename='category.xlsx')
+        sheet_obj = wb.active
+        max_row = sheet_obj.max_row
+
+        # Loop will print all columns name max_row + 1
+
+        for i in range(2, max_row + 1):
+            name = sheet_obj.cell(row=i, column=1)
+            old_id = sheet_obj.cell(row=i, column=2)
+            print(name.value,old_id.value)
+            ProductCategory.objects.create(
+                name=name.value,
+                old_id=old_id.value
+            )
+        return Response(status=200)
+
+
+class FillProd(APIView):
+    def get(self,request):
+        from openpyxl import load_workbook
+        prods = Product.objects.all()
+        prods.delete()
+        wb = load_workbook(filename='product.xlsx')
+        sheet_obj = wb.active
+        max_row = sheet_obj.max_row
+
+        # Loop will print all columns name max_row + 1
+
+        for i in range(2, max_row + 1):
+            cat_id = sheet_obj.cell(row=i, column=1)
+            name = sheet_obj.cell(row=i, column=2)
+            descr = sheet_obj.cell(row=i, column=3)
+            code = sheet_obj.cell(row=i, column=4)
+
+            print(cat_id.value,name.value,descr.value,code.value)
+
+
+            if cat_id.value:
+                cat = ProductCategory.objects.get(old_id=cat_id.value)
+                Product.objects.create(
+                    category=cat,
+                    name=name.value,
+                    shortDescription=descr.value,
+                    vendorCode=code.value
+                )
+
+        return Response(status=200)
+
+class FillFas(APIView):
+    def get(self,request):
+        from openpyxl import load_workbook
+        fas = ProductPrice.objects.all()
+        fas.delete()
+        wb = load_workbook(filename='fasovka.xlsx')
+        sheet_obj = wb.active
+        max_row = sheet_obj.max_row
+
+        # Loop will print all columns name max_row + 1
+
+        for i in range(2, max_row + 1):
+            product_code = sheet_obj.cell(row=i, column=1)
+            name = sheet_obj.cell(row=i, column=2)
+            code = sheet_obj.cell(row=i, column=3)
+            price = sheet_obj.cell(row=i, column=3)
+            print(product_code.value, name.value, code.value)
+            prod = Product.objects.get(vendorCode=product_code.value)
+            ProductPrice.objects.create(
+                product=prod,
+                vendorCode=code.value,
+                textLabel=name.value,
+                price=price.value if price.value !='-' else 0
+
+            )
+
+
+
+        return Response(status=200)

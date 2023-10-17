@@ -13,6 +13,7 @@ class ProductCategory(models.Model):
     slug = models.CharField('ЧПУ', max_length=255,
                             help_text='Если не заполнено, создается на основе поля Назавание',
                             blank=True, null=True)
+    old_id = models.IntegerField(blank=True, null=True)
     def __str__(self):
         return f'{self.name}'
 
@@ -53,7 +54,7 @@ class Product(models.Model):
     isAvailable = models.BooleanField('В наличии?', default=True)
     isActive = models.BooleanField('Отображать?', default=True)
     isNew = models.BooleanField('Товар новинка?', default=False)
-    isDiscount = models.BooleanField('Товар со скидкой?', default=True)
+    isDiscount = models.BooleanField('Товар со скидкой?', default=False)
     isPromotionActive = models.BooleanField('Отображать акционный блок?', default=False)
     promotionText = models.CharField('Текст в акционном блоке', max_length=255, blank=True, null=True)
     vendorCode = models.CharField('Артикул', max_length=255, blank=False, null=True)

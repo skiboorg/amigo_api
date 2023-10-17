@@ -205,13 +205,15 @@ class CreateOrder(APIView):
             )
             password = create_random_string(digits=False, num=8)
             print(password)
-            User.objects.create_user(
+            user = User.objects.create_user(
                 client=client,
                 login=email,
                 email=email,
                 password=password,
                 plain_password=password
             )
+            cart.user = user
+            cart.save()
 
         order = Order.objects.create(
             client=client,
