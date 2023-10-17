@@ -234,7 +234,7 @@ class CreateOrder(APIView):
                 product=cart_product.product,
                 productPrice=cart_product.productPrice,
                 amount=cart_product.amount,
-                totalPrice=cart_product.totalPrice,
+                total_price=cart_product.totalPrice,
 
             )
             cart_product.delete()
