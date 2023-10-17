@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from order.models import Order,OrderItem
 from user.models import User
 from product.models import ProductCategory
+from client.models import Client
 
 from datetime import datetime
 import dateutil.relativedelta
@@ -89,6 +90,15 @@ class OrderProducts(generics.ListAPIView):
         return Response(response_data)
 
 
+class CommonReport(APIView):
+    def get(self, request):
+        result = {}
+        orders = Order.objects.all()
+        clients = Client.objects.all()
+        result['orders'] = orders.count()
+        result['clients'] = clients.count()
+
+        return Response(result, status=200)
 class CategoriesReport(APIView):
     def get(self, request):
         categories = ProductCategory.objects.all()
