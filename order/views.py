@@ -13,7 +13,7 @@ from cart.models import Cart
 from cart.views import calcCart
 from .models import *
 from user.models import User
-from client.models import Client,Contractor
+from client.models import Client,Contractor,Contact
 from product.services import create_random_string
 from .serializers import *
 from django_filters import IsoDateTimeFilter
@@ -184,7 +184,8 @@ class CreateOrder(APIView):
         data = request.data
         session_id = data['session_id']
         new_user = data.get('new_user', None)
-        user = None
+        client = None
+        contact = None
         if request.user.is_authenticated:
             cart = Cart.objects.get(user=request.user)
         else:
@@ -192,28 +193,38 @@ class CreateOrder(APIView):
 
         if new_user:
             email = data['email']
-            fio = data['fio']
+            fio = data['customer_name']
+            phone = data['phone']
             client = Client.objects.create(
                 fio=fio
             )
+            contact = Contact.objects.create(
+                client=client,
+                phone=phone,
+                email=email
+            )
             password = create_random_string(digits=False, num=8)
             print(password)
-            user = User.objects.create_user(
+            User.objects.create_user(
                 client=client,
                 login=email,
                 email=email,
-                password=password
+                password=password,
+                plain_password=password
             )
 
-        if new_user:
-            order = Order.objects.create(
-                user=user,
-            )
-        else:
-            order = Order.objects.create(
-                session_id=session_id,
-            )
+        order = Order.objects.create(
+            client=client,
+            contact=contact
+        )
+
         order.totalPrice = cart.totalPrice
+        order.orderComment = data['order_comment']
+        order.delivery_address = data['delivery_address']
+        order.delivery_comment = data['delivery_comment']
+        order.delivery_id = data['delivery_type_id']
+        order.payment_type_id = data['payment_type_id']
+
         order.save()
         for cart_product in cart.products.all():
             OrderItem.objects.create(
