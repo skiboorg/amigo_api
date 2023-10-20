@@ -157,6 +157,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         instance.track_code = data.get('track_code',None)
         instance.delivery_price = data.get('delivery_price',None)
         instance.delivery_address = data.get('delivery_address',None)
+        instance.delivery_comment = data.get('delivery_comment',None)
         instance.save()
         products = data.get('products', None)
         if products:
