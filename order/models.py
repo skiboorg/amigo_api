@@ -22,6 +22,9 @@ class DeliveryCompany(models.Model):
 class PaymentType(models.Model):
     name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
     description = models.TextField(blank=True, null=True)
+    url = models.CharField('ССылка на сервер оплаты', max_length=255, blank=True, null=True)
+    login = models.CharField(max_length=255, blank=True, null=True)
+    password = models.CharField(max_length=255, blank=True, null=True)
     def __str__(self):
         return f'{self.name}'
 
@@ -66,6 +69,8 @@ class Order(models.Model):
     order_old_data = models.TextField(blank=True,null=True)
     order_old_items = models.TextField(blank=True,null=True)
     order_old_payments = models.TextField(blank=True,null=True)
+    payment_link = models.TextField(blank=True,null=True)
+    invoice_id = models.TextField(blank=True,null=True)
 
     class Meta:
         ordering = ('-id',)
@@ -95,7 +100,7 @@ class OrderItem(models.Model):
 
 def order_item_post_save(sender, instance, created, **kwargs):
     if created:
-        instance.price_with_discount = instance.productPrice.price
+        instance.price_with_discount = instance.productPrice.price if instance.productPrice else 0
         instance.save()
     # instance.total_weight = instance.productPrice.weight * Decimal(instance.amount)
     # instance.total_volume = instance.productPrice.volume * Decimal(instance.amount)

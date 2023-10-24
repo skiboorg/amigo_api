@@ -9,7 +9,7 @@ django-ckeditor
 django-filter
 django-nested-inline
 pytils
-
+simplejson
 selenium
 selenium-requests
 

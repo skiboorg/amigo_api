@@ -7,6 +7,7 @@ urlpatterns = [
     path('create', views.CreateOrder.as_view()),
 
     path('fill', views.Fill.as_view()),
+    path('get_payment_link', views.GetPaymentLink.as_view()),
     path('update_price', views.UpdateOrderItem.as_view()),
 
 ]

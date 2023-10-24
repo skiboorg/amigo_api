@@ -109,10 +109,11 @@ class ProductCartSerializer(serializers.ModelSerializer):
         ]
 
     def get_image(self, obj):
-        if obj.gallery.all().filter(is_main=True):
-            return f'{settings.SITE_URL}{obj.gallery.all().filter(is_main=True).first().image.url}'
-        else:
-            return f'{settings.SITE_URL}{obj.gallery.all().first().image.url}'
+        if len(obj.gallery.all())>0:
+            if obj.gallery.all().filter(is_main=True):
+                return f'{settings.SITE_URL}{obj.gallery.all().filter(is_main=True).first().image.url}'
+            else:
+                return f'{settings.SITE_URL}{obj.gallery.all().first().image.url}'
 
 
 class ProductForTableSerializer(serializers.ModelSerializer):

@@ -1,5 +1,8 @@
-import time
 
+import json
+import simplejson
+import time
+from decimal import Decimal
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from selenium import webdriver
@@ -21,6 +24,9 @@ import django_filters
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+
+import requests
+import base64
 
 
 def calcOrder(order_id):
@@ -284,6 +290,94 @@ def get_from_table(table):
     # for row_data in data_list:
     #     print(row_data)
     return data_list
+
+
+
+def encode_login_password(login,password):
+    message = f'{login}:{password}'
+    message_bytes = message.encode('ascii')
+    base64_bytes = base64.b64encode(message_bytes)
+    base64_message = base64_bytes.decode('ascii')
+    return base64_message
+
+def get_paykeeper_token(server,login,password):
+    uri = f"{server}/info/settings/token/"
+
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': f'Basic {encode_login_password(login,password)}'
+    }
+    response = requests.get(uri, headers=headers)
+    if response.status_code == 200:
+        return {"success": True, 'token': response.json()['token']}
+    else:
+        return {"success": False}
+
+
+def create_payment_link(auth_token,server,login,password,order):
+    uri = f"{server}/change/invoice/preview/"
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': f'Basic {encode_login_password(login, password)}'
+    }
+    cart = []
+    for item in order.products.all():
+        cart.append({"name": item.product.name,
+                     "price": item.price_with_discount,
+                     "quantity": item.amount,
+                     "sum": item.price_with_discount * item.amount,
+                     "tax": "none",
+                     "item_type": "payment",
+                     "payment_type": "prepay"}
+                    )
+    payload = {
+        "pay_amount": Decimal(order.total_price),
+        "clientid": order.client.fio if order.client else 'ФИО клиента не указано',
+        "orderid": order.id,
+        "service_name": {},
+        "client_email": order.contact.email if order.contact else None,
+        "client_phone": order.contact.phone if order.contact else None,
+        "token": auth_token,
+    }
+
+    payload['service_name'] = simplejson.dumps({
+            'cart': cart,
+            'service_name': 'Оплата товара'
+    })
+
+    response = requests.post(uri, headers=headers, data=payload)
+    data = response.json()
+
+    if data.get('result') == 'fail':
+        return {"success": False}
+    else:
+        return {"success": True, 'data': data}
+
+
+class GetPaymentLink(APIView):
+    def post(self, request):
+        data=request.data
+        result = {}
+        order = Order.objects.get(id=data['order_id'])
+        payment_type = order.payment_type
+        print(payment_type)
+        get_token = get_paykeeper_token(payment_type.url,payment_type.login,payment_type.password)
+        if get_token['success']:
+            auth_token = get_token['token']
+            print(auth_token)
+            payment_link = create_payment_link(auth_token,payment_type.url,payment_type.login,payment_type.password,order)
+            if payment_link['success']:
+                print(payment_link['data'])
+                order.payment_link = payment_link['data']['invoice_url']
+                order.invoice_id = payment_link['data']['invoice_id']
+                order.save()
+                result = {"success": True}
+            else:
+                result = {"success": False, "message": 'Ошибка получения платежной ссылки'}
+        else:
+            result = {"success":False, "message":'Ошибка получения доступа к paykeeper'}
+        return Response(result,status=200)
+
 class Fill(APIView):
     def get(self,request):
         from openpyxl import load_workbook
