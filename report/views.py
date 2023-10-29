@@ -131,13 +131,14 @@ class ManagersReport(APIView):
             total_orders = Order.objects.filter(manager=manager)
             orders_in_current_period = Order.objects.filter(manager=manager,created_at_date__year=year,created_at_date__month=month)
             orders_in_prev_period = Order.objects.filter(manager=manager,created_at_date__year=prev_period.year,created_at_date__month=prev_period.month)
+            clients = Client.objects.filter(manager=manager)
             print(manager)
             print(orders_in_current_period.count())
             print(orders_in_prev_period.count())
             print(total_orders.count())
             result.append({
                 "fio":manager.fio,
-                "total_clients":total_orders.count(),
+                "total_clients":clients.count(),
                 "orders_in_current_period":orders_in_current_period.count(),
                 "orders_in_prev_period":orders_in_prev_period.count(),
                 "total_price": orders_in_current_period.aggregate(Sum('total_price'))['total_price__sum']

@@ -3,21 +3,20 @@ from _decimal import Decimal
 from django.db import models
 from django.db.models.signals import post_save
 from django_resized import ResizedImageField
+from colorfield.fields import ColorField
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class Delivery(models.Model):
     name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextUploadingField(blank=True, null=True)
     image = ResizedImageField(size=[400, 300], quality=95, force_format='WEBP', upload_to='order/delivery',
                               blank=True, null=True)
     is_self_delivery = models.BooleanField(default=False, null=False)
     def __str__(self):
         return f'{self.name}'
 
-class DeliveryCompany(models.Model):
-    name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
-    def __str__(self):
-        return f'{self.name}'
+
 
 class PaymentType(models.Model):
     name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
@@ -30,13 +29,13 @@ class PaymentType(models.Model):
 
 class Status(models.Model):
     name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
+    bg_color = ColorField(default='#FF0000')
+    text_color = ColorField(default='#FFFFFF')
+    is_default = models.BooleanField(default=False, null=True)
     def __str__(self):
         return f'{self.name}'
 
-class DeliveryStatus(models.Model):
-    name = models.CharField('НАЗВАНИЕ', max_length=255, blank=False, null=True)
-    def __str__(self):
-        return f'{self.name}'
+
 
 class Order(models.Model):
     old_id = models.IntegerField(blank=True, null=True)
@@ -49,13 +48,16 @@ class Order(models.Model):
     contact = models.ForeignKey('client.Contact',on_delete=models.SET_NULL,blank=True, null=True)
     delivery = models.ForeignKey(Delivery,on_delete=models.SET_NULL,blank=True, null=True)
     delivery_price = models.DecimalField(default=0,decimal_places=2, max_digits=6,blank=True, null=True)
-    delivery_company = models.ForeignKey(DeliveryCompany,on_delete=models.SET_NULL,blank=True, null=True)
+
     payment_type = models.ForeignKey(PaymentType,on_delete=models.SET_NULL,blank=True, null=True)
     status = models.ForeignKey(Status,on_delete=models.SET_NULL,blank=True, null=True)
-    delivery_status = models.ForeignKey(DeliveryStatus,on_delete=models.SET_NULL,blank=True, null=True)
+
     delivery_address = models.TextField(blank=True, null=True)
     delivery_comment = models.TextField(blank=True, null=True)
     is_archive = models.BooleanField(default=False, null=False)
+    is_pay_done = models.BooleanField(default=False, null=False)
+    is_free_delivery = models.BooleanField(default=False, null=False)
+    delivery_pay_at_office = models.BooleanField(default=False, null=False)
     created_at_time = models.TimeField(auto_now_add=True, null=True)
     created_at_date = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
@@ -86,7 +88,8 @@ class OrderItem(models.Model):
     total_volume = models.DecimalField('Общий Объем, m3', decimal_places=3, max_digits=9, default=0, null=True)
     amount = models.IntegerField(default=1,blank=True, null=True)
     total_price = models.DecimalField('Общий Стоимость', decimal_places=2, max_digits=13, default=0, null=True)
-
+    price_changed = models.BooleanField(default=False, null=False)
+    price_changed_by = models.ForeignKey('user.User', on_delete=models.SET_NULL, blank=True, null=True)
     class Meta:
         ordering = ('-id',)
 

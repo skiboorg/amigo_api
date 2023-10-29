@@ -11,7 +11,6 @@ class OrderAdmin(admin.ModelAdmin):
 
 admin.site.register(Order,OrderAdmin)
 admin.site.register(Delivery)
-admin.site.register(DeliveryCompany)
+
 admin.site.register(PaymentType)
 admin.site.register(Status)
-admin.site.register(DeliveryStatus)

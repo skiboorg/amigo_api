@@ -60,9 +60,14 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         obj = self.get_object()
-        print(obj)
+        print(obj.price_with_discount)
+        print(request.data['manager'])
         print(request.data)
         obj.amount = request.data['amount']
+        if Decimal(obj.price_with_discount) != Decimal(request.data['price_with_discount']):
+            print('price change')
+            obj.price_changed = True
+            obj.price_changed_by_id = request.data['manager']
         obj.price_with_discount = request.data['price_with_discount']
         obj.save()
         calcOrder(request.data['order'])
@@ -97,6 +102,18 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     filterset_class = OrderFilter
 
+    def get_queryset(self):
+        manager_id = self.request.query_params.get('manager_id',None)
+
+        if manager_id:
+            manager = User.objects.get(id=manager_id)
+            if manager.is_staff:
+                return Order.objects.all()
+            else:
+                return Order.objects.filter(manager=manager)
+        else:
+            return Order.objects.all()
+
     def get_serializer_class(self):
         is_edit = self.request.query_params.get('edit',None)
         if is_edit:
@@ -113,8 +130,17 @@ class OrderViewSet(viewsets.ModelViewSet):
         new_order = Order.objects.create(
             client_id=data.get('client',None),
             contact_id=data.get('contact',None),
+            manager_id=data.get('manager',None),
+            status_id=data.get('status',None),
             contractor_id=data.get('contractor',None),
         )
+        need_new_contact = data.get('need_new_contact',None)
+        is_admin_order = data.get('is_admin_order',None)
+
+        if not is_admin_order:
+            default_status = Status.objects.get(is_default=True)
+            new_order.status = default_status
+            new_order.save()
 
         for product in data['products']:
             print(product)
@@ -125,6 +151,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                 price_with_discount=product['price_with_discount'],
                 amount=product['amount']
             )
+        if need_new_contact:
+            contact_data = data['new_contact']
+            new_contact = Contact.objects.create(
+                client=new_order.client,
+                name=contact_data['name'],
+            phone=contact_data['phone'],
+            email=contact_data['email'],
+            invite=contact_data.get('invite',None),
+            comment=contact_data.get('comment',None),
+            )
+            new_order.contact = new_contact
+            new_order.save()
+
         return Response(status=200)
 
     def update(self, request, *args, **kwargs):
@@ -140,7 +179,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         delivery_company_id = data.get('delivery_company',None)
         delivery_status_id = data.get('delivery_status',None)
         payment_type_id = data.get('payment_type',None)
-
+        is_free_delivery = data.get('is_free_delivery', None)
+        delivery_pay_at_office = data.get('delivery_pay_at_office', None)
 
         if client_id:
             instance.client_id = client_id
@@ -164,6 +204,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         instance.delivery_price = data.get('delivery_price',None)
         instance.delivery_address = data.get('delivery_address',None)
         instance.delivery_comment = data.get('delivery_comment',None)
+        instance.is_free_delivery = is_free_delivery
+        instance.delivery_pay_at_office = delivery_pay_at_office
         instance.save()
         products = data.get('products', None)
         if products:
@@ -185,14 +227,15 @@ class UpdateOrderItem(APIView):
         print(data)
         return Response(status=200)
 
-class CreateOrder(APIView):
 
+class CreateOrder(APIView):
     def post(self,request):
         data = request.data
         session_id = data['session_id']
         new_user = data.get('new_user', None)
         client = None
         contact = None
+
         if request.user.is_authenticated:
             cart = Cart.objects.get(user=request.user)
         else:
@@ -252,13 +295,8 @@ class CreateOrder(APIView):
 class DeliveryViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
     serializer_class = DeliverySerializer
-class DeliveryCompanyViewSet(viewsets.ModelViewSet):
-    queryset = DeliveryCompany.objects.all()
-    serializer_class = DeliveryCompanySerializer
 
-class DeliveryStatusViewSet(viewsets.ModelViewSet):
-    queryset = DeliveryStatus.objects.all()
-    serializer_class = DeliveryStatusSerializer
+
 
 class PaymentTypeViewSet(viewsets.ModelViewSet):
     queryset = PaymentType.objects.all()

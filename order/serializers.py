@@ -18,17 +18,6 @@ class DeliverySerializer(serializers.ModelSerializer):
         model = Delivery
         fields = '__all__'
 
-class DeliveryStatusSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = DeliveryStatus
-        fields = '__all__'
-
-class DeliveryCompanySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = DeliveryCompany
-        fields = '__all__'
 
 class PaymentTypeSerializer(serializers.ModelSerializer):
 
@@ -44,10 +33,10 @@ class StatusSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     from product.serializers import ProductCartSerializer,ProductPriceSerializer
-
+    from user.serializers import UserSerializer
     product = ProductCartSerializer(many=False, required=False, read_only=True)
     productPrice = ProductPriceSerializer(many=False, required=False, read_only=True)
-
+    price_changed_by = UserSerializer(many=False, required=False, read_only=True)
     class Meta:
         model = OrderItem
         fields = '__all__'
@@ -63,8 +52,7 @@ class OrderSerializer(serializers.ModelSerializer):
     manager = UserSerializer(many=False, required=False, read_only=True)
     contact = ContactSerializer(many=False, required=False, read_only=True)
     delivery = DeliverySerializer(many=False, required=False, read_only=True)
-    delivery_status = DeliveryStatusSerializer(many=False, required=False, read_only=True)
-    delivery_company = DeliveryCompanySerializer(many=False, required=False, read_only=True)
+
     payment_type = PaymentTypeSerializer(many=False, required=False, read_only=True)
     status = StatusSerializer(many=False, required=False, read_only=True)
     class Meta:
@@ -83,7 +71,7 @@ class OrderEditSerializer(serializers.ModelSerializer):
     manager = UserSerializer(many=False, required=False, read_only=True)
     contact = ContactSerializer(many=False, required=False, read_only=True)
     delivery = DeliverySerializer(many=False, required=False, read_only=True)
-    delivery_company = DeliveryCompanySerializer(many=False, required=False, read_only=True)
+
     payment_type = PaymentTypeSerializer(many=False, required=False, read_only=True)
     status = StatusSerializer(many=False, required=False, read_only=True)
     class Meta:

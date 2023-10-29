@@ -49,6 +49,17 @@ class ClientViewSet(viewsets.ModelViewSet):
         else:
             return ClientForTableSerializer
 
+    def get_queryset(self):
+        manager_id = self.request.query_params.get('manager_id',None)
+        if manager_id:
+            manager = User.objects.get(id=manager_id)
+            if manager.is_staff:
+                return Client.objects.all()
+            else:
+                return Client.objects.filter(manager=manager)
+        else:
+            return Client.objects.all()
+
     def create(self, request, *args, **kwargs):
         print(request.data)
         data = request.data

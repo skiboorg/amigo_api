@@ -117,6 +117,7 @@ class ProductCartSerializer(serializers.ModelSerializer):
 
 
 class ProductForTableSerializer(serializers.ModelSerializer):
+    category = ProductCategorySerializer(many=False, required=False, read_only=True)
     class Meta:
         model = Product
         fields = '__all__'
